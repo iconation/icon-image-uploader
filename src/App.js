@@ -8,12 +8,14 @@ class App extends Component {
         super(props);
         this.state = {
             selectedFile: null,
+            resizedImage: null,
             from: null,
             test: null
         };
 
         this.fileSelectedHandler = this.fileSelectedHandler.bind(this);
         this.fileUploadHandler = this.fileUploadHandler.bind(this);
+        this.sendTransactionHandler = this.sendTransactionHandler.bind(this);
     }
 
 
@@ -36,8 +38,9 @@ class App extends Component {
             (image) => {
                 api.iconexAskAddress().then((address) => {
                     //Get address from callback
-                    this.setState({from: address}, ()=>{
-                        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, image)
+                    this.setState({
+                        from: address,
+                        resizedImage: image
                     });
                 });
             },
@@ -46,13 +49,19 @@ class App extends Component {
 
     };
 
+    sendTransactionHandler = () => {
+        let api = new Api();
+        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, this.state.resizedImage);
+    };
+
     render() {
         console.log(this.state.from);
         return (
             <div className="App">
                 <header className="App-header">
                     <input type="file" onChange={this.fileSelectedHandler}/>
-                    <button value='Upload' onClick={this.fileUploadHandler}>Upload</button>
+                    <button value='Upload' onClick={this.fileUploadHandler}>Select address</button>
+                    <button value='Send Transaction' onClick={this.sendTransactionHandler}>Upload image</button>
                 </header>
             </div>
         );
