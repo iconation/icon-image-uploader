@@ -2,66 +2,115 @@ import React, {Component} from 'react';
 import Resizer from 'react-image-file-resizer';
 import Api from './Api';
 import './App.css';
+import {Button, Icon, Modal, Upload} from 'antd';
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedFile: null,
             resizedImage: null,
             from: null,
-            test: null
+            test: null,
+            buttonAddressLoading: false,
+
+            previewVisible: false,
+            previewImage: '',
+            fileList: [],
         };
 
         this.fileSelectedHandler = this.fileSelectedHandler.bind(this);
-        this.fileUploadHandler = this.fileUploadHandler.bind(this);
         this.sendTransactionHandler = this.sendTransactionHandler.bind(this);
+        this.selectAddressHandler = this.selectAddressHandler.bind(this);
     }
 
+    handleCancel = () => this.setState({previewVisible: false});
 
-    fileSelectedHandler = event => {
+    getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    handlePreview = async file => {
+        if (!file.url && !file.preview) {
+            file.preview = await this.getBase64(file.originFileObj);
+        }
+
         this.setState({
-            selectedFile: event.target.files[0]
-        })
+            previewImage: file.url || file.preview,
+            previewVisible: true,
+        });
     };
 
-    fileUploadHandler = () => {
-        //Upload image to ICON blockchain
-        let api = new Api();
-        Resizer.imageFileResizer(
-            this.state.selectedFile,
-            1000,
-            1000,
-            'JPEG',
-            70,
-            0,
-            (image) => {
-                api.iconexAskAddress().then((address) => {
-                    //Get address from callback
+    fileSelectedHandler = ({fileList}) => {
+        this.setState({fileList});
+    };
+
+    selectAddressHandler = () => {
+        this.setState({buttonAddressLoading: true}, () => {
+            new Api().iconexAskAddress().then((address) => {
+                //Get address from callback
+                this.setState({
+                    from: address
+                }, () => {
                     this.setState({
-                        from: address,
-                        resizedImage: image
-                    });
+                        buttonAddressLoading: false
+                    })
                 });
-            },
-            'base64'
-        );
+            });
+        });
 
     };
 
     sendTransactionHandler = () => {
         let api = new Api();
-        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, this.state.resizedImage);
+        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, this.state.fileList[0].thumbUrl);
     };
 
+    enterButtonLoading = () => {
+        this.setState({
+            buttonLoading: true
+        })
+    };
+
+
     render() {
-        console.log(this.state.from);
+        const {previewVisible, previewImage, fileList} = this.state;
+        const uploadButton = (
+            <div>
+                <Icon type="plus"/>
+                <div className="ant-upload-text">Upload</div>
+            </div>
+        );
+        console.log(this.state.from && this.state.fileList[0]);
         return (
             <div className="App">
                 <header className="App-header">
-                    <input type="file" onChange={this.fileSelectedHandler}/>
-                    <button value='Upload' onClick={this.fileUploadHandler}>Select address</button>
-                    <button value='Send Transaction' onClick={this.sendTransactionHandler}>Upload image</button>
+                    {!this.state.from &&
+                    <Button
+                        type="primary"
+                        loading={this.state.buttonAddressLoading}
+                        onClick={this.selectAddressHandler}
+                    >
+                        Select address
+                    </Button>
+                    }
+                    {this.state.from}
+                    <Upload
+                        listType="picture-card"
+                        fileList={fileList}
+                        onPreview={this.handlePreview}
+                        onChange={this.fileSelectedHandler}
+                    >
+                        {fileList.length >= 1 ? null : uploadButton}
+                    </Upload>
+                    <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+                        <img alt="example" style={{width: '100%'}} src={previewImage}/>
+                    </Modal>
+                    <Button disabled={!(this.state.from && this.state.fileList[0])} onClick={this.sendTransactionHandler}>Upload image</Button>
                 </header>
             </div>
         );
