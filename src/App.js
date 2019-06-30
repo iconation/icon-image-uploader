@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import Resizer from 'react-image-file-resizer';
 import Api from './Api';
 import './App.css';
 import {Button, Icon, Modal, Upload} from 'antd';
@@ -67,7 +66,7 @@ class App extends Component {
 
     sendTransactionHandler = () => {
         let api = new Api();
-        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, this.state.fileList[0].thumbUrl);
+        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, this.state.fileList[0].thumbUrl)/*.then((result) => console.log(result))*/;
     };
 
     enterButtonLoading = () => {
@@ -85,7 +84,7 @@ class App extends Component {
                 <div className="ant-upload-text">Upload</div>
             </div>
         );
-        console.log(this.state.from && this.state.fileList[0]);
+
         return (
             <div className="App">
                 <header className="App-header">
