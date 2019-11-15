@@ -66,7 +66,7 @@ class App extends Component {
 
     sendTransactionHandler = () => {
         let api = new Api();
-        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, this.state.fileList[0].thumbUrl)/*.then((result) => console.log(result))*/;
+        api.__sendTransaction(this.state.from, 'cx0000000000000000000000000000000000000000', 0, /*this.state.fileList[0].thumbUrl*/'test');
     };
 
     enterButtonLoading = () => {
