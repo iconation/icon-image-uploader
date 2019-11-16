@@ -12,7 +12,7 @@ class Api {
 
     // Following classes are private because they are lower level methods at a protocol level
     __sendTransaction (from, to, value, data) {
-        const transaction = this.__icxTransactionBuild(from, to, value, 2000000, data);
+        const transaction = this.__icxTransactionBuild(from, to, value, 200000000, data); //mind the step value
         console.log(transaction);
 
         const jsonRpcQuery = {

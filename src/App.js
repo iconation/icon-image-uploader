@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import Api from './Api';
 import './App.css';
-import {Button, Icon, Modal, Upload} from 'antd';
+import {Button, Col, Icon, Modal, Row, Upload} from 'antd';
 
 class App extends Component {
     constructor(props) {
@@ -11,7 +11,6 @@ class App extends Component {
             from: null,
             test: null,
             buttonAddressLoading: false,
-
             previewVisible: false,
             previewImage: '',
             fileList: [],
@@ -64,9 +63,21 @@ class App extends Component {
 
     };
 
+    logout = () => {
+        this.setState({
+            resizedImage: null,
+            from: null,
+            test: null,
+            buttonAddressLoading: false,
+            previewVisible: false,
+            previewImage: '',
+            fileList: [],
+        })
+    };
+
     sendTransactionHandler = () => {
         let api = new Api();
-        api.__sendTransaction(this.state.from, 'cx0000000000000000000000000000000000000000', 0, /*this.state.fileList[0].thumbUrl*/'test');
+        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, '0x' + Buffer.from(this.state.fileList[0].thumbUrl, 'utf8').toString('hex'));
     };
 
     enterButtonLoading = () => {
@@ -89,27 +100,48 @@ class App extends Component {
             <div className="App">
                 <header className="App-header">
                     {!this.state.from &&
-                    <Button
-                        type="primary"
-                        loading={this.state.buttonAddressLoading}
-                        onClick={this.selectAddressHandler}
-                    >
-                        Select address
-                    </Button>
+                    <Row>
+                        <Button
+                            type="primary"
+                            onClick={this.selectAddressHandler}
+                        >
+                            Login using ICONex
+                        </Button>
+                    </Row>
                     }
-                    {this.state.from}
-                    <Upload
-                        listType="picture-card"
-                        fileList={fileList}
-                        onPreview={this.handlePreview}
-                        onChange={this.fileSelectedHandler}
-                    >
-                        {fileList.length >= 1 ? null : uploadButton}
-                    </Upload>
-                    <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-                        <img alt="example" style={{width: '100%'}} src={previewImage}/>
-                    </Modal>
-                    <Button disabled={!(this.state.from && this.state.fileList[0])} onClick={this.sendTransactionHandler}>Upload image</Button>
+                    {this.state.from &&
+                    <Row>
+                        <Col>
+                            <div>
+                                <span><span style={{fontSize: '12!important'}}>Your address:</span> {this.state.from} </span>
+                                <Button
+                                    type="danger"
+                                    onClick={this.logout}
+                                >
+                                    Logout
+                                </Button>
+                            </div>
+                        </Col>
+                    </Row>
+                    }
+                    {this.state.from &&
+                    <Fragment>
+                        <Upload
+                            listType="picture-card"
+                            fileList={fileList}
+                            onPreview={this.handlePreview}
+                            onChange={this.fileSelectedHandler}
+                        >
+                            {fileList.length >= 1 ? null : uploadButton}
+                        </Upload>
+
+                        <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+                            <img alt="example" style={{width: '100%'}} src={previewImage}/>
+                        </Modal>
+                        <Button disabled={!(this.state.from && this.state.fileList[0])}
+                                onClick={this.sendTransactionHandler}>Upload image</Button>
+                    </Fragment>
+                    }
                 </header>
             </div>
         );
