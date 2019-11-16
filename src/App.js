@@ -77,7 +77,7 @@ class App extends Component {
 
     sendTransactionHandler = () => {
         let api = new Api();
-        api.__sendTransaction(this.state.from, 'hx0000000000000000000000000000000000000000', 0, '0x' + Buffer.from(this.state.fileList[0].thumbUrl, 'utf8').toString('hex'));
+        api.__sendTransaction(this.state.from, 'cx0000000000000000000000000000000000000000', 0, '0x' + Buffer.from(this.state.fileList[0].thumbUrl, 'utf8').toString('hex'));
     };
 
     enterButtonLoading = () => {
@@ -113,7 +113,7 @@ class App extends Component {
                     <Row>
                         <Col>
                             <div>
-                                <span><span style={{fontSize: '12!important'}}>Your address:</span> {this.state.from} </span>
+                                <span><span style={{fontSize: '12!important'}}>Your address:</span> <a target="_blank" href={"https://tracker.icon.foundation/address/" + this.state.from}>{this.state.from}</a> </span>
                                 <Button
                                     type="danger"
                                     onClick={this.logout}
